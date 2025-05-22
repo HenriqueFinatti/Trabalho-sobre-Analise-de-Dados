@@ -370,7 +370,7 @@ x_col = st.sidebar.selectbox(
     key='x_col_select',
     placeholder='Selecione a coluna para X',
     help='Selecione a coluna para X',
-    
+
 )
 y_col = st.sidebar.selectbox(
     'Selecione a coluna para Y:',
@@ -393,24 +393,40 @@ st.sidebar.write(f"""
 - {x_col}: {descricao_colunas[Planilha][x_col.strip()]}
 - {y_col}: {descricao_colunas[Planilha][y_col.strip()]}
 """)
-
+st.write(f'### Matriz de correlação entre as colunas')
+sns.heatmap(df.corr().abs(),  annot=True, fmt=".1f", cmap='coolwarm', vmin=-1, vmax=1, center=0, linewidths=0.5, linecolor='black', cbar=True)
+st.pyplot(plt.gcf())
+plt.clf()
 if run_analysis_button:
     # Estatísticas para x e y selecionados
-    st.write(f'### Estatísticas para {x_col} (x) e {y_col} (y)')
+    st.write("### Metodos utilizados para calcular as estatisticas da coluna X:")
+    st.write("""
+    - Média: df[x_col].mean()
+    - Variância: df[x_col].var()
+    - Desvio Padrão: df[x_col].std()
+    - Mediana: df[x_col].median()
+    """)
 
+    st.write(f'### Estatísticas para  (y)')
+    st.write("""
+    - Média: df[y_col].mean()
+    - Variância: df[y_col].var()
+    - Desvio Padrão: df[y_col].std()
+    - Mediana: df[y_col].median()
+    """)
     stats_x = pd.DataFrame({
         'Média': [df[x_col].mean()],
         'Variância': [df[x_col].var()],
         'Desvio Padrão': [df[x_col].std()],
         'Mediana': [df[x_col].median()]
     }, index=[x_col])
-
     stats_y = pd.DataFrame({
         'Média': [df[y_col].mean()],
         'Variância': [df[y_col].var()],
         'Desvio Padrão': [df[y_col].std()],
         'Mediana': [df[y_col].median()]
     }, index=[y_col])
+    st.write(f'### Estatísticas para {x_col} (x) e {y_col} (y)')
 
     st.write(f'**Estatísticas para {x_col}:**')
     st.write(stats_x)
@@ -441,9 +457,11 @@ if run_analysis_button:
 
     # Teste de Normalidade (Shapiro-Wilk)
     st.write('### Teste de Normalidade (Shapiro-Wilk)')
+    st.write("No teste de Shapiro-Wilk, um p-valor maior que 0.05 indica que os dados podem ser considerados normalmente distribuídos. Um p-valor menor ou igual a 0.05 sugere que não são normalmente distribuídos.")
 
     # Verifica se as colunas selecionadas são numéricas antes de aplicar o teste de Shapiro-Wilk
     if pd.api.types.is_numeric_dtype(df[x_col]) and pd.api.types.is_numeric_dtype(df[y_col]):
+        
         shapiro_x_stat, shapiro_x_p = stats.shapiro(df[x_col].dropna())
         st.write(f'**Teste de Shapiro-Wilk para {x_col}:**')
         st.write(f'Estatística={shapiro_x_stat:.4f}, p-valor={shapiro_x_p:.4f}')
@@ -455,6 +473,7 @@ if run_analysis_button:
         shapiro_y_stat, shapiro_y_p = stats.shapiro(df[y_col].dropna())
         st.write(f'**Teste de Shapiro-Wilk para {y_col}:**')
         st.write(f'Estatística={shapiro_y_stat:.4f}, p-valor={shapiro_y_p:.4f}')
+        st.write(f'O valor do shapiro_y_p é {shapiro_y_p:.4f}')
         if shapiro_y_p > 0.05:
             st.write(f'{y_col} parece ser normalmente distribuído (não se rejeita H0)')
         else:
@@ -479,6 +498,7 @@ if run_analysis_button:
     sns.scatterplot(x=x_col, y=y_col, data=df)
     st.pyplot(plt.gcf())
     plt.clf()
+
 else:
     st.info("Selecione as colunas X e Y na barra lateral e clique em 'Realizar Análise' para ver os resultados.")
 
