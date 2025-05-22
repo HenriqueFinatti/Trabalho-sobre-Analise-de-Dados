@@ -346,21 +346,9 @@ if len(all_columns) > 1 and default_x_index == default_y_index:
 elif len(all_columns) == 1: # If only one column, x and y must be the same
     default_y_index = 0
 
-x_col = st.sidebar.selectbox(
-    'Selecione a coluna para X:',
-    all_columns,
-    index=default_x_index,
-    key='x_col_select'
-)
-y_col = st.sidebar.selectbox(
-    'Selecione a coluna para Y:',
-    all_columns,
-    index=default_y_index,
-    key='y_col_select'
-)
+
 
 # Botão para iniciar a análise
-run_analysis_button = st.sidebar.button("Realizar Análise")
 
 # Pré-processamento: Verificar e remover dados duplicados
 st.write('### Verificar e remover dados duplicados')
@@ -375,6 +363,25 @@ st.write(df.describe())
 # Verificar se há valores nulos
 st.write('### Verificar se há valores nulos')
 st.write(df.isnull().sum())
+x_col = st.sidebar.selectbox(
+    'Selecione a coluna para X:',
+    all_columns,
+    index=default_x_index,
+    key='x_col_select',
+    placeholder='Selecione a coluna para X',
+    help='Selecione a coluna para X',
+    
+)
+y_col = st.sidebar.selectbox(
+    'Selecione a coluna para Y:',
+    all_columns,
+    index=default_y_index,
+    key='y_col_select',
+    placeholder='Selecione a coluna para Y',
+    help='Selecione a coluna para Y'
+)
+run_analysis_button = st.sidebar.button("Realizar Análise")
+
 st.write(f"""
 # As variaveis que escolhi para analise sao:
 ## {x_col} e {y_col}
@@ -412,8 +419,10 @@ if run_analysis_button:
 
     # Coeficiente de correlação entre x e y
     correlation_xy = df[x_col].corr(df[y_col])
+
     st.write(f'### Coeficiente de Correlação entre {x_col} e {y_col}')
     st.write(f'{correlation_xy:.4f}')
+    st.write(f'Correlação pelo numpy: {np.corrcoef(df[x_col], df[y_col])[0, 1]:.4f}')
 
     # Boxplots
     st.write('### Boxplots para x e y')
